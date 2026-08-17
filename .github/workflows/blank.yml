@@ -1,45 +1,63 @@
-# This is a basic workflow to help you get started with Actions
-
 name: Lambda CI
 
-# Controls when the workflow will run
 on:
-  # Triggers the workflow on push or pull request events but only for the "main" branch
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
-
-  # Allows you to run this workflow manually from the Actions tab
+    branches:
+      - main
   workflow_dispatch:
 
-# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+permissions:
+  contents: read
+
 jobs:
-  # This workflow contains a single job called "build"
-  build:
-    # The type of runner that the job will run on
+  test:
+    name: Validate, build and test
     runs-on: ubuntu-latest
 
+    defaults:
+      run:
+        working-directory: lambda_project/lambda_proj
 
-    # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
-      - uses: actions/checkout@v4
-    
+      - name: Check out repository
+        uses: actions/checkout@v7
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: echo Hello, Hasan GIthub Actions Tutoial
+      - name: Set up Python
+        uses: actions/setup-python@v7
+        with:
+          python-version-file: .python-version
+          cache: pip
+          cache-dependency-path: |
+            lambda_project/lambda_proj/hello_world/requirements.txt
 
-      # Runs a set of commands using the runners shell
-      - name: Run a multi-line script
+      - name: Set up AWS SAM CLI
+        uses: aws-actions/setup-sam@v3
+        with:
+          use-installer: true
+
+      - name: Install dependencies
         run: |
-          echo Add other actions to build,
-          echo test, and deploy your project.
-      
+          echo: Hello Testing 123!!!
+          python -m pip install --upgrade pip
+          python -m pip install -r hello_world/requirements.txt
+          python -m pip install pytest pytest-cov
+
+          if [ -f tests/integration/requirements.txt ]; then
+            python -m pip install -r tests/integration/requirements.txt
+          fi
+
+      - name: Validate SAM template
+        run: sam validate --lint
+
+      - name: Build SAM application
+        run: sam build
+
       - name: Run integration tests
-      run: |
-      python -m pytest lambda_project\lambda_proj\tests\integration \
-      --verbose \
-      --cov=hello_world \
-      --cov-report=term-missing
+        run: |
+          python -m pytest tests/integration \
+            --verbose \
+            --cov=hello_world \
+            --cov-report=term-missing
