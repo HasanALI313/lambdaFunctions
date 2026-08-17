@@ -50,11 +50,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r hello_world/requirements.txt
-          python -m pip install pytest pytest-cov
+          python -m pip install -r tests/integration/requirements.txt
+      
+        run: |
+          python -m pip show boto3
+          python -c "import boto3; print('boto3 version:', boto3.__version__)"
 
-          if [ -f tests/integration/requirements.txt ]; then
-            python -m pip install -r tests/integration/requirements.txt
-          fi
 
       - name: Validate SAM template
         run: sam validate --lint
