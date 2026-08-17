@@ -77,7 +77,7 @@ jobs:
         env:
           AWS_SAM_STACK_NAME: lambda_proj
         run: |
-          python -m pytest tests/integration/unit \
+          python -m pytest tests/integration \
             --verbose \
             --cov=hello_world \
             --cov-report=term-missing
