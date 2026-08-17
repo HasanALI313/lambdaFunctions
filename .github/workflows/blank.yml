@@ -32,11 +32,13 @@ jobs:
           cache: pip
           cache-dependency-path: |
             lambda_project/lambda_proj/hello_world/requirements.txt
+            lambda_project/lambda_proj/tests/requirements.txt
 
       - name: Verify Python environment
         run: |
           which python
           python --version
+          python -m pip --version
 
       - name: Set up AWS SAM CLI
         uses: aws-actions/setup-sam@v3
@@ -50,12 +52,12 @@ jobs:
         run: |
           python -m pip install --upgrade pip
           python -m pip install -r hello_world/requirements.txt
-          python -m pip install -r tests/integration/requirements.txt
-      
+          python -m pip install -r tests/requirements.txt
+
+      - name: Verify test dependencies
         run: |
           python -m pip show boto3
           python -c "import boto3; print('boto3 version:', boto3.__version__)"
-
 
       - name: Validate SAM template
         run: sam validate --lint
