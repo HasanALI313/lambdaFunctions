@@ -7,7 +7,7 @@ import requests
 """
 Make sure env variable AWS_SAM_STACK_NAME exists with the name of the stack we are going to test. 
 """
-
+AWS_SAM_STACK_NAME = 'lambda_proj'
 
 class TestApiGateway:
 
